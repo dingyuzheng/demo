@@ -56,7 +56,7 @@ int main(int argc, char** argv)
     set_fd_nonblock(ep_fd);
 
     bzero(&ep_ev, sizeof(ep_ev));
-    ep_ev.data.fd = ep_fd;
+    ep_ev.data.fd = listen_fd;
     ep_ev.events = EPOLLIN|EPOLLET;
     if ( epoll_ctl(ep_fd, EPOLL_CTL_ADD, listen_fd, &ep_ev) == -1 )
     {
@@ -79,6 +79,7 @@ int main(int argc, char** argv)
             {
                 while ( ( remote_fd = accept( cur_fd, ( struct sockaddr* ) &remote_addr, &remote_addr_len ) ) != -1 ) 
                 {
+    		    set_fd_nonblock(remote_fd);
                     ep_ev.data.fd = remote_fd;
                     ep_ev.events = EPOLLIN|EPOLLET;
                     if ( epoll_ctl(ep_fd, EPOLL_CTL_ADD, remote_fd, &ep_ev) == -1 )
@@ -86,7 +87,7 @@ int main(int argc, char** argv)
                         printf("error:epoll_ctl()\n");
                         exit(1);
                     }
-                    printf("accept new connection:%d\n", remote_fd);
+                    //printf("accept new connection:%d\n", remote_fd);
                 }
             }
             else if ( events[i].events & EPOLLIN )
@@ -113,7 +114,7 @@ int main(int argc, char** argv)
                 }
 
                 buf[i][buf_cursor] = '\0';
-                printf("recv client request:%s\n", buf[i]);
+                printf("recv client request:%s:fd=%d\n", buf[i], cur_fd);
             }
             else if ( events[i].events & EPOLLOUT )
             {
@@ -129,10 +130,11 @@ int main(int argc, char** argv)
                             printf("error:write():cur_fd=%d\n", cur_fd);
                             exit(1);
                         }
-                        break;
+			break;
                     }
                     buf_cursor += rwlen;
                 }
+                printf("send client responce:%s,fd=%d\n", buf[i], cur_fd);
                 close(cur_fd);
             }
             else 
