@@ -1,6 +1,7 @@
 #ifndef SOCKET__H
 #define SOCKET__H
 #include <sys/types.h>
+#include "util.h"
 namespace network{
 class SockAddr;
 class Socket{
@@ -18,7 +19,10 @@ public:
     ssize_t Write(const void* buf, size_t count) const;
     void Close() const;
 private:
-    Socket(int fd) { fd_ = fd; }
+    Socket(int fd) {
+        fd_ = fd; 
+        set_fd_nonblock(fd_);
+    }
     ~Socket(){}
     
     int fd_;
