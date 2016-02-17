@@ -1,19 +1,22 @@
 #include "factory.h"
+#include <vector>
 using namespace mode;
 int main()
 {
-	FactoryA fa;
-	Product* pa = fa.CreateProduct();
-	pa->Show();
-	FactoryB fb;
-	Product* pb = fb.CreateProduct();
-	pb->Show();
-	FactoryC fc;
-	Product* pc = fc.CreateProduct();
-	pc->Show();
+	typedef std::vector<Product*> PVec;
+	PVec pvec;
+	pvec.push_back( FactoryA().CreateProduct() );
+	pvec.push_back( FactoryB().CreateProduct() );
+	pvec.push_back( FactoryC().CreateProduct() );
 
-	delete pa;
-	delete pb;
-	delete pc;
+	PVec::iterator it = pvec.begin(), ie = pvec.end();
+	for ( ; it != ie; ++it )
+		(*it)->Show();
+
+	it = pvec.begin(), ie = pvec.end();
+	for ( ; it != ie; ++it )
+		delete *it;
+	pvec.clear();
+
 	return 0;
 }
