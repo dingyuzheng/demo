@@ -19,4 +19,5 @@ int main() {
 		delete (*it);
 
 	objs.clear();
+	return 0;
 }
